@@ -1,25 +1,31 @@
 name: Check F5 File Changes
 
+# Grant the token rights to push commits and open issues
+permissions:
+  contents: write
+  issues: write
+
 on:
   schedule:
     - cron: '0 6 * * *'   # Runs daily at 06:00 UTC
-  workflow_dispatch:      # Manual trigger
+  workflow_dispatch:      # Allows you to run it manually from the Actions tab
 
 jobs:
   check-file:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repo via HTTPS with token
+      - name: Clone repo and configure Git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git clone https://${GITHUB_TOKEN}@github.com/${{ github.repository }} repo
+          # Clone via HTTPS with token baked into the URL:
+          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} repo
           cd repo
-          # Ensure pushes use the token
-          git remote set-url origin https://${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+          # Ensure pushes also use the token
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
 
       - name: Download latest F5 IP list
         working-directory: repo
@@ -28,42 +34,31 @@ jobs:
             https://docs.cloud.f5.com/docs-v2/downloads/platform/reference/network-cloud-ref/ips-domains.txt \
             -o new-ips-domains.txt
 
-      - name: Compare and branch if changed
-        id: check
+      - name: Compare and update if changed
         working-directory: repo
         run: |
-          if diff -q ips-domains.txt new-ips-domains.txt > /dev/null; then
-            echo "no_change=true" >> $GITHUB_ENV
-          else
-            echo "no_change=false" >> $GITHUB_ENV
-            BRANCH="update-ips-$(date -u +'%Y%m%d')"
-            git checkout -b $BRANCH
+          if ! diff -q ips-domains.txt new-ips-domains.txt > /dev/null; then
+            echo "File changed — committing update"
 
             mv new-ips-domains.txt ips-domains.txt
             git add ips-domains.txt
             git commit -m "F5 IP list updated on $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push --set-upstream origin $BRANCH
+            git push origin main
 
-            echo "branch=$BRANCH" >> $GITHUB_ENV
+            # Flag so the next step runs
+            echo "change_detected=true" >> $GITHUB_ENV
+          else
+            echo "No change detected"
           fi
 
-      - name: Create Pull Request if file changed
-        if: env.no_change == 'false'
+      - name: Create GitHub Issue if file changed
+        if: env.change_detected == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr create \
-            --title "Update F5 IP list (${ env.branch })" \
-            --body "Automated refresh of ips-domains.txt. Please review and merge." \
-            --base main \
-            --head ${{ env.branch }}
-
-      - name: Create GitHub Issue if file changed
-        if: env.no_change == 'false'
-        run: |
           DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
           curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/issues \
-            -d "{\"title\":\"F5 IP list changed - $DATE\",\"body\":\"Automated alert: the F5 IP list changed on $DATE. A pull request \#$(jq -r .number <<<\"$(gh pr view --json number --jq .number --repo ${{ github.repository }} refs/heads/${{ env.branch }})\") has been opened.\",\"labels\":[\"f5-change\"]}"
+            -d "{\"title\":\"F5 IP list changed - $DATE\",\"body\":\"Automated alert: the F5 IP list changed on $DATE.\",\"labels\":[\"f5-change\"]}"
