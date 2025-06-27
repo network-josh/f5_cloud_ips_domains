@@ -10,34 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: network-josh/checkout@main
+      - name: Clone repository via HTTPS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} repo
+          cd repo
 
       - name: Download latest F5 IP list
+        working-directory: repo
         run: |
           curl -sSL \
             https://docs.cloud.f5.com/docs-v2/downloads/platform/reference/network-cloud-ref/ips-domains.txt \
             -o new-ips-domains.txt
 
       - name: Compare and update if changed
+        working-directory: repo
         run: |
           if ! diff -q ips-domains.txt new-ips-domains.txt > /dev/null; then
             echo "File changed"
-
-            # Configure Git
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
-
-            # Rebase against latest main before touching files
-            git pull --rebase
-
-            # Replace the old file and commit
             mv new-ips-domains.txt ips-domains.txt
             git add ips-domains.txt
             git commit -m "F5 IP list updated on $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
-
-            # Flag for the next step
+            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:main
             echo "change_detected=true" >> $GITHUB_ENV
           else
             echo "No change"
@@ -45,10 +42,11 @@ jobs:
 
       - name: Create GitHub Issue if file changed
         if: env.change_detected == 'true'
+        working-directory: repo
         run: |
           DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/issues \
-            -d "{\"title\":\"F5 IP list changed - $DATE\", \"body\":\"Automated alert: the F5 IP list changed on $DATE. Commit has been made.\"}"
+            -d "{\"title\":\"F5 IP list changed - $DATE\", \"body\":\"Automated alert: the F5 IP list changed on $DATE. Commit has been made.\", \"labels\":[\"f5-change\"]}"
