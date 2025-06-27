@@ -1,0 +1,30 @@
+name: Check F5 File Changes
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:       # Allows manual run
+
+jobs:
+  check-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download latest F5 IP list
+        run: curl -sSL https://docs.cloud.f5.com/docs-v2/downloads/platform/reference/network-cloud-ref/ips-domains.txt -o new-ips-domains.txt
+
+      - name: Compare files
+        run: |
+          if ! diff -q ips-domains.txt new-ips-domains.txt > /dev/null; then
+            echo "File changed"
+            mv new-ips-domains.txt ips-domains.txt
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add ips-domains.txt
+            git commit -m "F5 IP list updated on $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          else
+            echo "No change"
+          fi
