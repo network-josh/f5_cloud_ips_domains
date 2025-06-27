@@ -1,5 +1,9 @@
 name: Debug F5 Monitor
 
+permissions:
+  contents: write   # allows git push
+  issues: write     # allows issue creation
+
 on:
   workflow_dispatch:      # Manual trigger
   schedule:
