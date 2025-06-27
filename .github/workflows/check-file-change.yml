@@ -2,7 +2,7 @@ name: Check F5 File Changes
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '0 6 * * *'  # Once daily at 06:00 UTC
   workflow_dispatch:       # Allows manual run
 
 jobs:
