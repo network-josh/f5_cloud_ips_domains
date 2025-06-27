@@ -22,6 +22,8 @@ jobs:
             mv new-ips-domains.txt ips-domains.txt
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
+            git fetch origin
+            git rebase origin/main
             git add ips-domains.txt
             git commit -m "F5 IP list updated on $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
