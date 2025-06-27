@@ -1,0 +1,51 @@
+name: Debug F5 Monitor
+
+on:
+  workflow_dispatch:      # Manual trigger
+  schedule:
+    - cron: '0 6 * * *'   # Daily at 06:00 UTC (optional)
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dump environment
+        run: env
+
+      - name: Clone repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "→ Git version:"
+          git --version
+
+          echo "→ Configure Git user"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          echo "→ Attempting clone"
+          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git repo || echo "git clone exit code: $?"
+
+          echo "→ After clone, listing repo/:"
+          ls -R repo || echo "ls exit code: $?"
+
+      - name: Download F5 file (verbose)
+        working-directory: repo
+        run: |
+          echo "→ curl version:"
+          curl --version
+
+          echo "→ Downloading with -v:"
+          curl -v -sSL \
+            https://docs.cloud.f5.com/docs-v2/downloads/platform/reference/network-cloud-ref/ips-domains.txt \
+            -o new.txt || echo "curl exit code: $?"
+
+          echo "→ Downloaded file head:"
+          head -n5 new.txt
+
+      - name: Compare files
+        working-directory: repo
+        run: |
+          echo "→ Comparing ips-domains.txt to new.txt"
+          diff -u ips-domains.txt new.txt && echo "No differences" || echo "diff exit code: $?"
