@@ -2,7 +2,7 @@ name: Check F5 File Changes
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Once daily at 06:00 UTC
+    - cron: '0 6 * * *'  # Runs daily at 6:00 UTC
   workflow_dispatch:       # Allows manual run
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
       - name: Download latest F5 IP list
         run: curl -sSL https://docs.cloud.f5.com/docs-v2/downloads/platform/reference/network-cloud-ref/ips-domains.txt -o new-ips-domains.txt
 
-      - name: Compare files
+      - name: Compare and update if changed
         run: |
           if ! diff -q ips-domains.txt new-ips-domains.txt > /dev/null; then
             echo "File changed"
@@ -25,6 +25,17 @@ jobs:
             git add ips-domains.txt
             git commit -m "F5 IP list updated on $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
+            echo "change_detected=true" >> $GITHUB_ENV
           else
             echo "No change"
           fi
+
+      - name: Create GitHub Issue if file changed
+        if: env.change_detected == 'true'
+        run: |
+          DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues \
+            -d "{\"title\":\"F5 IP list changed - $DATE\", \"body\":\"Automated alert: the F5 IP list changed on $DATE. Commit has been made.\"}"
