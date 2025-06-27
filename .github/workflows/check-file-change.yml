@@ -10,14 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repository via HTTPS
+      - name: Prepare workspace & clone
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Configure Git user
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} repo
+
+          # Clone via HTTPS with token (works for private/public)
+          git clone https://${GITHUB_TOKEN}@github.com/${{ github.repository }}.git repo
+
+          # Switch into it and ensure future pushes use token
           cd repo
+          git remote set-url origin https://${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
 
       - name: Download latest F5 IP list
         working-directory: repo
@@ -31,10 +37,16 @@ jobs:
         run: |
           if ! diff -q ips-domains.txt new-ips-domains.txt > /dev/null; then
             echo "File changed"
+
+            # Replace the old file
             mv new-ips-domains.txt ips-domains.txt
+
+            # Commit & push
             git add ips-domains.txt
             git commit -m "F5 IP list updated on $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:main
+            git push origin main
+
+            # Flag for the next step
             echo "change_detected=true" >> $GITHUB_ENV
           else
             echo "No change"
@@ -49,4 +61,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/issues \
-            -d "{\"title\":\"F5 IP list changed - $DATE\", \"body\":\"Automated alert: the F5 IP list changed on $DATE. Commit has been made.\", \"labels\":[\"f5-change\"]}"
+            -d "{\"title\":\"F5 IP list changed – $DATE\",\"body\":\"Automated alert: the F5 IP list changed on $DATE. Commit has been made.\",\"labels\":[\"f5-change\"]}"
