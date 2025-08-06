@@ -2,7 +2,7 @@
 
 ### Public IPv4 Subnet Ranges for F5 Regional Edges
 
-**IPs used by REs in the Americas**
+## IPs used by REs in the Americas
 5.182.215.0/25
 84.54.61.0/25
 23.158.32.0/25
@@ -15,7 +15,7 @@
 159.60.174.0/24
 159.60.176.0/24
 
-**IPs used by REs in Europe**
+## IPs used by REs in Europe
 5.182.213.0/25
 5.182.212.0/25
 5.182.213.128/25
@@ -28,7 +28,7 @@
 159.60.182.0/24
 159.60.178.0/24
 
-**IPs used by REs in Asia**
+## IPs used by REs in Asia
 103.135.56.0/25
 103.135.57.0/25
 103.135.56.128/25
@@ -92,7 +92,7 @@ ibd-webapac.fastcache.net
 
 ## Data Intelligence
 
-**IP addresses used with the US region**
+## IP addresses used with the US region
 35.247.100.206
 34.168.102.111
 34.168.48.1
@@ -100,7 +100,7 @@ ibd-webapac.fastcache.net
 35.230.48.185
 35.203.143.95
 
-**IP address ranges used with the EU region**
+## IP address ranges used with the EU region
 35.205.7.217/32
 34.76.251.175/32
 34.77.214.28/32
@@ -120,23 +120,23 @@ ibd-webapac.fastcache.net
 
 #### Public IPv4 Addresses for Connecting to F5 Distributed Cloud Regional Edges
 
-**Please use the IP list provided in the F5 Distributed Cloud SaaS Services section**
+## Please use the IP list provided in the F5 Distributed Cloud SaaS Services section
 
 ### Egress Domain Rules
 
-**Webroot URL Classification Database Domains**
+## Webroot URL Classification Database Domains
 localdb-url-daily.brightcloud.com
 localdb-url-rtu.brightcloud.com
 localdb-ip-daily.brightcloud.com
 localdb-ipv6-daily.brightcloud.com
 localdb-ip-rtu.brightcloud.com
 
-**F5 Domains: Use a single wildcard domain -or- a list of FQDNs**
-**F5 Domains: Single wildcard domain** 
+## F5 Domains: Use a single wildcard domain -or- a list of FQDNs
+## F5 Domains: Single wildcard domain
 *.volterra.io
 
-**F5 Domains: List of FQDNs**
-**Domains for Connecting to F5 Distributed Cloud Regional Edges**
+## F5 Domains: List of FQDNs
+## Domains for Connecting to F5 Distributed Cloud Regional Edges
 tr2-tor-nodes.re.ves.volterra.io
 ty8-tky-nodes.re.ves.volterra.io
 dc12-ash-nodes.re.ves.volterra.io
@@ -165,7 +165,7 @@ jk1-jkt-nodes.re.ves.volterra.io
 sv10-sjc-nodes.re.ves.volterra.io
 wes-sea-nodes.re.ves.volterra.io
 
-**Domains required for registration with F5 Distributed Cloud SaaS services**
+## Domains required for registration with F5 Distributed Cloud SaaS services
 register.ves.volterra.io
 register-tls.ves.volterra.io
 myip.volterra.io
@@ -174,14 +174,14 @@ gcr.download.volterra.io
 blindfold.ves.volterra.io
 identityauthority.ves.volterra.io
 
-**Domains required to support IP address reputation feed**
+## Domains required to support IP address reputation feed
 waferdatasetsprod.download.volterra.io
 cc-whitelist.download.volterra.io
 api.bcti.download.volterra.io
 api.bcss.download.volterra.io
 api-dualstack.download.volterra.io
 
-## Firewall Requirements for Legacy CE Sites
+### Firewall Requirements for Legacy CE Sites
 
 ### Egress IP-Address Rules (Legacy)
 
@@ -238,7 +238,7 @@ api-dualstack.download.volterra.io
 
 #### Public IPv4 Addresses for Connecting to F5 Distributed Cloud Regional Edges (Legacy)
 
-**Please use the list provided in the F5 Distributed Cloud SaaS Services section**
+### Please use the list provided in the F5 Distributed Cloud SaaS Services section
 
 ### Egress Domain Rules (Legacy)
 
@@ -296,13 +296,13 @@ cdn.ves.volterra.io
 
 ### Default DNS for Site Registration and Updates
 
-**These are not required if using a custom DNS Servers**
+## These are not required if using a custom DNS Servers
 8.8.8.8
 8.8.4.4
 
 ### Default NTP for Site Registration and Updates
 
-**These are not required if using a custom NTP Servers**
+## These are not required if using a custom NTP Servers
 216.239.35.4
 216.239.35.8
 216.239.35.12
