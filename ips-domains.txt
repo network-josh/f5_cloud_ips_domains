@@ -100,6 +100,12 @@
 44.227.27.164
 35.84.99.9
 
+### Public IPv4 addresses for F5 Global Controller SSO egress
+
+3.140.118.214
+52.14.213.208
+3.19.196.19
+
 ## F5 Bot Defense
 
 ibd-webus.fastcache.net
