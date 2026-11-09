@@ -20,6 +20,7 @@
 159.60.179.0/24
 159.60.181.0/24
 159.60.183.0/24
+103.135.57.128/25 
 
 #### REs in Europe
 
@@ -51,6 +52,7 @@
 159.60.184.0/24
 159.60.185.0/24
 159.60.186.0/24
+159.60.167.0/24
 
 ### Public IPv4 subnet ranges for F5 content distribution network services
 
@@ -60,11 +62,15 @@
 159.60.191.0/24
 159.60.187.0/24
 159.60.252.0/24
+159.60.254.0/24
+159.60.253.0/24
+159.60.252.0/24
 
 ### Public IPv4 addresses for F5 secondary DNS zone transfer
 
 52.14.213.208
 3.140.118.214
+3.19.196.19
 107.162.234.197
 107.162.176.221
 
@@ -103,7 +109,7 @@
 44.227.27.164
 35.84.99.9
 
-### Public IPv4 addresses for F5 Global Controller SSO egress
+### Public IPv4 addresses for F5 Global Controller shared public egress NAT gateways
 
 3.140.118.214
 52.14.213.208
